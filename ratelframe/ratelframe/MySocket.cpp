@@ -1,0 +1,134 @@
+#include "stdafx.h"
+#include "MySocket.h"
+
+CMySocket::CMySocket(void):ifClose(true)
+{
+}
+CMySocket::~CMySocket(void)
+{
+	closesocket(serverSocket);
+	WSACleanup();
+}
+bool CMySocket::initSocket(){
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+		std::cerr << "WSAStartup() is error!\n";
+		return false;
+	}
+	return true;
+}
+bool CMySocket::bindSocket(int listenport){
+	std::string addr = "0.0.0.0";
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket == INVALID_SOCKET) {
+		return false;
+	}
+	memset(&servAdr, 0, sizeof(servAdr));
+	servAdr.sin_family = AF_INET;
+	inet_pton(AF_INET, addr.data(), &servAdr.sin_addr.s_addr);
+	servAdr.sin_port = htons(listenport);
+
+	//预留设置非阻塞网络I/O
+	//if (ifSetNonBlock) {
+	//	///设置socket为非阻塞socket
+	//	u_long argp = 1;
+	//	int ret = ioctlsocket(serverSocket, FIONBIO, &argp);
+	//	if (ret != NO_ERROR) {
+	//		std::cerr << "ioctlsocket error! : " << WSAGetLastError() << std::endl;
+	//		return false;
+	//	}
+	//}
+	if(bind(serverSocket, (SOCKADDR*)&servAdr, sizeof(servAdr)) == SOCKET_ERROR){
+		std::cerr << "绑定端口出错！" << std::endl;
+	}
+	if(listen(serverSocket, 5) == SOCKET_ERROR){
+		std::cerr << "监听端口出错！" << std::endl;
+	}
+	clientfds.push_back(serverSocket);
+	return true;
+}
+void CMySocket::Run() {
+
+	while (ifClose) {
+		fd_set readset;
+		//fd_set writeset;
+		//FD_ZERO(&writeset);		
+		FD_ZERO(&readset);
+		//timeval tm;
+		int fdmax = 0;
+		timeval tm;
+		tm.tv_sec = 3;
+		tm.tv_usec = 0;
+		for(unsigned int i = 0; i < clientfds.size(); i++){
+
+			FD_SET(clientfds[i], &readset);
+			//FD_SET(serverSocke+t, &writeset);
+			if(fdmax < clientfds[i])
+				fdmax = clientfds[i];
+
+		}
+		int ret = select(fdmax + 1, &readset, NULL, NULL, &tm);
+
+		if (ret == -1) {
+
+			std::cerr << "select error!\n";
+			break;
+
+		}
+		else if (ret == 0) { //select函数超时     
+			//std::cout << "no event in specific time interval." << std::endl;
+			continue;
+		}
+		else
+		{
+			//检测可读事件
+			if (FD_ISSET(serverSocket, &readset)) {
+				SOCKADDR_IN client;
+				SOCKET accpClient;
+				int clientlength = sizeof(client);
+				accpClient = accept(serverSocket,(SOCKADDR*)&client,&clientlength);
+				clientfds.push_back(accpClient);
+
+			}
+			else {
+				for(unsigned int i = 0; i < clientfds.size(); i++ ){
+					
+					if(clientfds[i] != -1 && FD_ISSET(clientfds[i], &readset)){
+
+						int ret = HandleRecv(clientfds[i], tcpClient.headData, tcpClient.irecvlen, i);
+						if(ret == -1){
+							continue;;
+						}
+					}else
+					{
+							//留着用来处理其他事件
+					}
+
+				}
+
+			}
+		}
+
+	}
+}
+int CMySocket::HandleRecv(int fd, char* buf, int buflen,int i){
+	
+	memset(buf, 0 ,buflen);
+	int len = recv(fd, buf, buflen, 0);
+
+	if(len < 0){
+
+		std::cerr << " 接收数据出错！" << std::endl;
+		clientfds.erase(clientfds.begin() + i);
+		closesocket(clientfds[i]);
+	}
+	else if(len == 0){
+		std::cerr << " 对方关闭连接！" << std::endl;
+		clientfds.erase(clientfds.begin() + i);
+		closesocket(clientfds[i]);
+
+	}else{
+		return len;
+		//处理数据
+	}
+	return -1;
+}
