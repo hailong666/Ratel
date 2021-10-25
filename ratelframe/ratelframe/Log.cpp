@@ -1,3 +1,7 @@
+/*
+*  by CallMeEngineer  2021/10/24
+*/
+
 #include "stdafx.h"
 #include "Log.h"
 #include<fstream>
@@ -6,10 +10,13 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
-
-CLog::CLog(std::string filename):filename(filename),isok_open(false)
+#include "Config.h"
+#include "Singleton.h"
+CLog::CLog():isok_open(false)
 {
-	std::ifstream fp(filename.c_str(), std::ios::in);
+	std::string srcname = CSigleton<CConfig>::GetInstance().getParam("LogSrc");
+	filename = srcname;
+	std::ifstream fp(srcname.c_str(), std::ios::in);
 	if(fp){
 		isok_open = true;
 	}

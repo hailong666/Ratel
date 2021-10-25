@@ -1,3 +1,7 @@
+/*
+*  by CallMeEngineer  2021/10/24
+*/
+
 #include "stdafx.h"
 #include "Config.h"
 #include<fstream>
@@ -13,6 +17,13 @@ CConfig::CConfig(std::string filename):file_isok(false)
 }
 CConfig::~CConfig(void)
 {
+}
+std::string CConfig::getParam(std::string param){
+	for(auto pa : paramstore){
+		if(pa.first == param)
+			return pa.second;
+	}
+	return "";
 }
 int CConfig::InitConfig(){
 	if(!file_isok)return -1;

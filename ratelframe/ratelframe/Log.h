@@ -1,3 +1,7 @@
+/*
+*  by CallMeEngineer  2021/10/24
+*/
+
 #pragma once
 #include<iostream>
 #include<stdarg.h>
@@ -12,7 +16,7 @@ enum class Log_level{
 class CLog
 {
 public:
-	CLog(std::string filename);
+	CLog();
 	void output(Log_level Level, char* fmt, ...);
 	~CLog(void);
 private:

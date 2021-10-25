@@ -1,15 +1,19 @@
+/*
+*  by CallMeEngineer  2021/10/24
+*/
+
 #pragma once
 #include<iostream>
 #include<map>
 class CConfig
 {
 public:
-	CConfig(std::string filename);
+	CConfig(std::string filename = "test.conf");
 	~CConfig(void);
 	//初始化配置
 	int InitConfig();
 	//获取配置参数
-	std::string getParam();
+	std::string getParam(std::string param);
 	//设置配置参数
 	std::string setParam();
 private:
