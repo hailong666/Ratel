@@ -1,8 +1,15 @@
-﻿生成启动时间为 2021/10/25 9:30:27。
+﻿生成启动时间为 2021/10/27 10:53:14。
      1>项目“E:\Linux\frame_cpp\ratelframe\ratelframe\ratelframe.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\ratelframe.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Log.cpp
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\ratelframe.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Log.cpp MySocket.cpp WorkProcess.cpp ratelframe.cpp
          Log.cpp
+         正在生成代码...
+         正在编译...
+         ratelframe.cpp
+         WorkProcess.cpp
+         MySocket.cpp
+         正在生成代码...
+     1>e:\linux\frame_cpp\ratelframe\ratelframe\workprocess.cpp(18): warning C4715: “CWorkProcess::initPro”: 不是所有的控件路径都返回值
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Linux\frame_cpp\ratelframe\Debug\ratelframe.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\Linux\frame_cpp\ratelframe\Debug\ratelframe.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Linux\frame_cpp\ratelframe\Debug\ratelframe.lib" /MACHINE:X86 Debug\Config.obj
          Debug\daemon.obj
@@ -18,4 +25,4 @@
 
 生成成功。
 
-已用时间 00:00:01.40
+已用时间 00:00:06.97

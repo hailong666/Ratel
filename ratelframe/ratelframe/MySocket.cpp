@@ -5,8 +5,11 @@
 #include "stdafx.h"
 #include "MySocket.h"
 
+CTcpClient CMySocket::tcpClient;
+CThreadMangerPool CMySocket::threadPool;
 CMySocket::CMySocket(void):ifClose(true)
 {
+
 }
 CMySocket::~CMySocket(void)
 {
@@ -18,6 +21,7 @@ bool CMySocket::initSocket(){
 		std::cerr << "WSAStartup() is error!\n";
 		return false;
 	}
+	CMySocket::threadPool.init(5);
 	return true;
 }
 bool CMySocket::bindSocket(int listenport){
@@ -91,17 +95,29 @@ void CMySocket::Run() {
 				int clientlength = sizeof(client);
 				accpClient = accept(serverSocket,(SOCKADDR*)&client,&clientlength);
 				clientfds.push_back(accpClient);
+				std::cout << " 新连接到来！" << std::endl;
+				LOGD("%d 客户端连接成功", accpClient );
 
 			}
 			else {
 				for(unsigned int i = 0; i < clientfds.size(); i++ ){
 					
 					if(clientfds[i] != -1 && FD_ISSET(clientfds[i], &readset)){
+						int ret = -1;
+						if(CMySocket::tcpClient.myStatus == status_type::PACK_HD_INIT||CMySocket::tcpClient.myStatus == status_type::PACK_HD_RECVING)
+							ret = HandleRecv(clientfds[i], CMySocket::tcpClient.headData, CMySocket::tcpClient.irecvlen, i);
+						else
+							ret = HandleRecv(clientfds[i], CMySocket::tcpClient.bodydata + DATA_BUFSIZE, CMySocket::tcpClient.irecvlen, i);
 
-						int ret = HandleRecv(clientfds[i], tcpClient.headData, tcpClient.irecvlen, i);
 						if(ret == -1){
-							continue;;
+							continue;
 						}
+						int bodyLen = CMySocket::tcpClient.HandleHeadRequest(ret);
+						if(bodyLen != -1){
+							
+							threadPool.addTask(new ThreadTask(CMySocket::tcpClient.bodydata, bodyLen));
+						}
+							
 					}else
 					{
 							//留着用来处理其他事件
@@ -114,18 +130,19 @@ void CMySocket::Run() {
 
 	}
 }
-int CMySocket::HandleRecv(int fd, char* buf, int buflen,int i){
+int CMySocket::HandleRecv(int fd, char* buf, unsigned int buflen,int i){
 	
 	memset(buf, 0 ,buflen);
 	int len = recv(fd, buf, buflen, 0);
 
 	if(len < 0){
-
+		LOGE("接收到数据有误，数据包长度为复数");
 		std::cerr << " 接收数据出错！" << std::endl;
 		clientfds.erase(clientfds.begin() + i);
 		closesocket(clientfds[i]);
 	}
 	else if(len == 0){
+		LOGE("客户端 %d 关闭连接!",clientfds[i]);
 		std::cerr << " 对方关闭连接！" << std::endl;
 		clientfds.erase(clientfds.begin() + i);
 		closesocket(clientfds[i]);

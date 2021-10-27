@@ -10,10 +10,11 @@ CConfig::CConfig(std::string filename):file_isok(false)
 {
 	std::ifstream fp;
 	fp.open(filename.c_str(),std::ios::in);
-	if(fp){
+	if(fp.is_open()){                      //验证文件是否可以打开,并进行标记
 		file_isok = true;
 		this->filename = filename;
 	}
+
 }
 CConfig::~CConfig(void)
 {
@@ -26,7 +27,7 @@ std::string CConfig::getParam(std::string param){
 	return "";
 }
 int CConfig::InitConfig(){
-	if(!file_isok)return -1;
+	if(!file_isok)return -1; //初始化失败
 	std::ifstream fp;
 	fp.open(filename.c_str(), std::ifstream::in);
 	if(!fp){
@@ -35,16 +36,16 @@ int CConfig::InitConfig(){
 	}
 
 	char str[100];
-	while(fp.getline(str,100)){
-		int start, end;
+	while(fp.getline(str,100)){    //读取每一行的配置文件
+		unsigned int start, end;
 		for(start = 0; start < strlen(str); start++){
-			if(str[start] == ' '|| str[start] == '\r' || str[start] == '\n'){
+			if(str[start] == ' '|| str[start] == '\r' || str[start] == '\n'){ //过滤空行
 				start++;
 			}else{
 				break;
 			}
 		}
-		for(end = strlen(str)-1; end > 0; end--){
+		for(end = strlen(str)-1; end > 0; end--){   //去掉末尾的空格和不可见字符
 			if(str[end] == ' '|| str[end] == '\r' || str[end] == '\n'){
 				end--;
 			}else{
@@ -64,7 +65,7 @@ int CConfig::InitConfig(){
 	}
 	return 0;
 }
-int CConfig::ParamHandle(std::string strline){
+int CConfig::ParamHandle(std::string strline){ //跳过#开头和'['开头的组标记
 	int flageq = 0;
 	for(int i = 0; i < strline.size(); i++){
 		if(strline[0] =='#' || strline[0] == '[') return 0;

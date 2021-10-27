@@ -17,13 +17,14 @@ CThreadMangerPool::~CThreadMangerPool(void)
 	}
 }
 bool CThreadMangerPool::init(int threadnum){
-	CreateThreads(threadnum);
-	for(int i = 0; i < threadnum; i++){
-		std::shared_ptr<CTcpClient> tmpTcpClient;
-		tmpTcpClient.reset(new CTcpClient);
-		tcpClients.push_back(tmpTcpClient);
-	}
 	is_runing = true;
+	CreateThreads(threadnum);
+	//for(int i = 0; i < threadnum; i++){
+	//	std::shared_ptr<CTcpClient> tmpTcpClient;
+	//	tmpTcpClient.reset(new CTcpClient);
+	//	tcpClients.push_back(tmpTcpClient);
+	//}
+	
 	return true;
 }
 bool CThreadMangerPool::CreateThreads(int threadnum){
@@ -55,7 +56,7 @@ void CThreadMangerPool::Run(){
 		if (task == NULL)
 			continue;
 
-		//task->doIt();
+		task->DoIt();
 		task.reset();
 	}
 
@@ -78,4 +79,20 @@ void CThreadMangerPool::addTask(ThreadTask* task){
 	}
 	threadPool_cv.notify_all();
 	
+}
+ThreadTask::ThreadTask(char* data, unsigned int len){
+	bodyData = data + DATA_BUFSIZE;
+	this->len = len;
+}
+void ThreadTask::DoIt(){
+	std::cout << "处理了一条数据长度为：" << this->len << std::endl;
+	char* yonghuming = bodyData + 4;
+	char* mima = bodyData + 60;
+	unsigned long* ModeType =  (unsigned long*)bodyData;
+	unsigned long modetype = ntohl(*ModeType);
+	
+	std::cout << "该数据的模式为：" << modetype << std::endl;
+	std::cout << "用户名为 ：" << yonghuming << std::endl;
+	std::cout << "密码为   ：" << mima << std::endl;
+
 }

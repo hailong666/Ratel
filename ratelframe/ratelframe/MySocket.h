@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include "TcpClient.h"
+#include "ThreadMangerPool.h"
+#include "Log.h"
 #pragma comment(lib, "Ws2_32.lib")
 class CMySocket
 {
@@ -18,14 +20,16 @@ public:
 	~CMySocket(void);
 	bool bindSocket(int listenport = 80);
 	void Run();
-	int HandleRecv(int fd, char* buf, int buflen, int i);
+	int HandleRecv(int fd, char* buf, unsigned int buflen, int i);
+
 private:
 	WSADATA wsaData;
 	SOCKET serverSocket;
 	SOCKADDR_IN servAdr;
-	CTcpClient tcpClient;
+	static CTcpClient tcpClient;	
 	std::vector<int> clientfds;
 	bool ifClose;
+	static CThreadMangerPool threadPool;
 
 };
 

@@ -11,7 +11,7 @@
 CTcpClient::~CTcpClient(void)
 {
 }
-void CTcpClient::HandleHeadRequest(int ret){
+int CTcpClient::HandleHeadRequest(int ret){
 	if(myStatus == status_type::PACK_HD_INIT){
 
 		if(ret == headLen){
@@ -35,7 +35,7 @@ void CTcpClient::HandleHeadRequest(int ret){
 	}
 	else if(myStatus == status_type::PACK_BD_INIT){
 		if(ret == irecvlen){
-			HandlePerfectBody();
+			return HandlePerfectBody();
 		}
 		else{
 			myStatus = status_type::PACK_BD_RECVING;
@@ -46,7 +46,7 @@ void CTcpClient::HandleHeadRequest(int ret){
 	}
 	else if(myStatus == status_type::PACK_BD_RECVING){
 		if(irecvlen == ret){
-			HandlePerfectBody();
+			return HandlePerfectBody();
 		}
 		else{
 			nowptr += ret;
@@ -54,11 +54,11 @@ void CTcpClient::HandleHeadRequest(int ret){
 		}
 
 	}
-	return;
+	return -1;
 
 }
 
-void CTcpClient::HandlePerfectHead(void){
+int CTcpClient::HandlePerfectHead(void){
 	LPCOMM_PKG_HEADER lpHeadData = (LPCOMM_PKG_HEADER)headData;
 	unsigned short e_pkgLen = ntohs(lpHeadData->pkgLen);
 	//恶意包或者错误包的判断
@@ -87,7 +87,8 @@ void CTcpClient::HandlePerfectHead(void){
 		 {
 			 //该报文只有包头无包体【我们允许一个包只有包头，没有包体】
 			 //这相当于收完整了，则直接入消息队列待后续业务逻辑线程去处理吧
-			 HandlePerfectBody();
+			 
+			 return HandlePerfectBody();
 		 } 
 		 else
 		 {
@@ -97,13 +98,13 @@ void CTcpClient::HandlePerfectHead(void){
 			 irecvlen = e_pkgLen - headLen;   
 		 }                       
 	}
+	return -1;
 }
-void CTcpClient::HandlePerfectBody(void){
-
-
-
+int CTcpClient::HandlePerfectBody(void){
+	unsigned int res = irecvlen;
 	myStatus = status_type::PACK_HD_INIT;
 	nowptr = headData; 
-	irecvlen = headLen;   
+	irecvlen = DATA_BUFSIZE;   
+	return res;
 
 }
