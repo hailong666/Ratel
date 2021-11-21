@@ -34,6 +34,8 @@
 
 项目地址：https://github.com/hailong666/Ratel
 
+![代码截图](https://i.loli.net/2021/11/21/LnITpAZBcXbJRNj.png)
+
 微信公众号： 里面有我很多地原创文章，欢迎关注，支持原创！
 
  ![公众号二维码大](https://raw.githubusercontent.com/Lovelyboyjie/MyPicgo/main/img/%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81%E5%A4%A7.jpg)
